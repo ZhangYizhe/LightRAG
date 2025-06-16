@@ -197,20 +197,20 @@ PROMPTS["fail_response"] = (
     "Sorry, I'm not able to provide an answer to that question.[no-context]"
 )
 
-PROMPTS["rag_response"] = """
----Role---
+PROMPTS["rag_response"] = """---Role---
 
-You are a specialized Knowledge Graph analysis assistant that responds to user queries based on provided Knowledge Graph and Document Chunks in JSON format.
+You are a helpful assistant responding to user query about Knowledge Graph and Document Chunks provided in JSON format below.
+
 
 ---Goal---
 
-Analyze user queries using the provided Knowledge Base (KB) and structure relevant information as distinct, well-formatted points. Summarize and synthesize **only** information explicitly present in the KB—do not infer or add any information not directly provided.
+Generate a concise response based on Knowledge Base and follow Response Rules, considering both the conversation history and the current query. Summarize all information in the provided Knowledge Base, and incorporating general knowledge relevant to the Knowledge Base. Do not include information not provided by Knowledge Base.
 
-**When handling relationships with timestamps:**
-1. Each relationship includes a "created_at" timestamp showing when this knowledge was acquired.
-2. If relationships conflict, review both their semantic content and timestamps to judge which to reference.
-3. Do not automatically prefer the most recent relationship; apply contextual judgment.
-4. For temporally-specific questions, prioritize explicit temporal info in the content over timestamps.
+When handling relationships with timestamps:
+1. Each relationship has a "created_at" timestamp indicating when we acquired this knowledge
+2. When encountering conflicting relationships, consider both the semantic content and the timestamp
+3. Don't automatically prefer the most recently created relationships - use judgment based on the context
+4. For time-specific queries, prioritize temporal information in the content before considering creation timestamps
 
 ---Conversation History---
 {history}
@@ -218,117 +218,18 @@ Analyze user queries using the provided Knowledge Base (KB) and structure releva
 ---Knowledge Graph and Document Chunks---
 {context_data}
 
----Output Format Requirements---
+---Response Rules---
 
-## **Target format:** Key Points as structured below.
+- Target format and length: {response_type}
+- Use markdown formatting with appropriate section headings
+- Please respond in the same language as the user's question.
+- Ensure the response maintains continuity with the conversation history.
+- List up to 5 most important reference sources at the end under "References" section. Clearly indicating whether each source is from Knowledge Graph (KG) or Document Chunks (DC), and include the file path if available, in the following format: [KG/DC] file_path
+- If you don't know the answer, just say so.
+- Do not make anything up. Do not include information not provided by the Knowledge Base.
+- Addtional user prompt: {user_prompt}
 
-### Overall Structure
-All output must be wrapped in:
-```
-[POINTS_LIST_START]
-<LIST OF POINTS>
-[POINTS_LIST_END]
-```
-
-### Individual Point Format
-Each point must follow this exact structure:
-```
-[POINT_START]
-[TITLE_START]<CONCISE_POINT_TITLE>[TITLE_END]
-[CAUSAL_REASONS_LIST_SUMMARY_START]<SYNTHESIS_OF_CAUSAL_REASONS>[CAUSAL_REASONS_LIST_SUMMARY_END]
-[CAUSAL_REASONS_LIST_START]
-<LIST OF CAUSAL REASONS>
-[CAUSAL_REASONS_LIST_END]
-[POINT_END]
-```
-
-#### Point Requirements
-- CONCISE_POINT_TITLE should be only a few words (no full sentences), and must start with an emoji that is relevant to the title content, followed by a space, then the title itself.
-
-### Causal Reason Format
-Each causal reason must follow this structure:
-```
-[CAUSAL_REASON_START]
-[EFFECT_START]<EFFECT_OR_OUTCOME_DESCRIPTION>[EFFECT_END]
-[RELATION_START]<WHY_CAUSE_LEADS_TO_EFFECT>[RELATION_END]
-[CAUSE_START]<REFERENCE_JSON>[CAUSE_END]
-[CAUSAL_REASON_END]
-```
-
-**Component Definitions:**
-- **CAUSE**: The reference (entity, relationship, or document chunk) that serves as the starting point
-- **RELATION**: Concise explanation of **why** or **how** the cause leads to the effect
-- **EFFECT**: The resulting outcome, conclusion, or consequence
-
-## Reference Standards
-
-### Reference Types
-Use these exact JSON formats for references:
-
-1. **Knowledge Base Entity**:
-```json
-{{"type": "entity", "entity": "<ENTITY_NAME>", "description": "<DESCRIPTION>", "file_path": "<FILE_PATH>"}}
-```
-
-2. **Knowledge Base Relationship**:
-```json
-{{"type": "kg", "entity1": "<ENTITY1>", "entity2": "<ENTITY2>", "description": "<RELATION_DESCRIPTION>", "keywords": "<KEYWORDS>", "file_path": "<FILE_PATH>"}}
-```
-
-3. **Document Chunk**:
-```json
-{{"type": "dc", "content": "<RELEVANT_TEXT_SNIPPET>", "file_path": "<FILE_PATH>"}}
-```
-
-### Reference Requirements
-- Every factual claim in TITLE and CAUSAL_REASONS_SUMMARY must be supported by causal reasons
-- All references must correspond to actual content in the provided KB
-- Include conversation history only when explicitly supported by KB references
-
-## Content Guidelines
-
-### Structure Rules
-- **One fact per point**: Do not combine unrelated facts within the same point
-- **Separation principle**: When in doubt, create separate points
-- **No additional content**: Output only the required point structure—no introductions, summaries, or explanations
-
-### Language Requirements
-- Write all output in the user's query language
-- Maintain consistency in terminology and style
-- Use clear, professional language
-
-### Quality Standards
-- Ensure logical flow from causes to effects
-- Provide comprehensive coverage of relevant KB information
-- Maintain accuracy and avoid speculation
-
-## Output Example Structure
-```
-[POINTS_LIST_START]
-[POINT_START]
-[TITLE_START]Example Point Title[TITLE_END]
-[CAUSAL_REASONS_LIST_SUMMARY_START]Summary synthesizing the causal reasons[CAUSAL_REASONS_LIST_SUMMARY_END]
-[CAUSAL_REASONS_LIST_START]
-[CAUSAL_REASON_START]
-[EFFECT_START]Results in this specific outcome[EFFECT_END]
-[RELATION_START]Entity1 influences Entity2 through mechanism X[RELATION_END]
-[CAUSE_START]{{"type": "kg", "entity1": "Entity1", "entity2": "Entity2", "description": "relationship", "keywords": "key1,key2", "file_path": "path"}}[CAUSE_END]
-[CAUSAL_REASON_END]
-[CAUSAL_REASONS_LIST_END]
-[POINT_END]
-[POINTS_LIST_END]
-```
-
-## Final Instructions
-- Strictly adhere to the reference enforcement rules
-- Ensure every claim is traceable to provided KB content
-- Maintain the exact formatting structure
-- Focus on accuracy and completeness within the KB scope
-- Ensure that every START has a corresponding END, and that each END comes after its corresponding START.
-- Additional system prompt: {user_prompt}
-
-Output:
-"""
+Response:"""
 
 PROMPTS["keywords_extraction"] = """---Role---
 
