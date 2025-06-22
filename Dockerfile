@@ -50,7 +50,7 @@ ENV WORKING_DIR=/app/data/rag_storage
 ENV INPUT_DIR=/app/data/inputs
 
 # Expose the default port
-EXPOSE 9621
+EXPOSE 80
 
 # Set entrypoint
 ENTRYPOINT ["python", "-m", "lightrag.api.lightrag_server"]
