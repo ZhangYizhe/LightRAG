@@ -244,6 +244,7 @@ Each point must follow this exact structure:
 
 #### Point Requirements
 - CONCISE_POINT_TITLE should be only a few words (no full sentences), and must start with an emoji that is relevant to the title content, followed by a space, then the title itself.
+- LIST OF CAUSAL REASONS: Provide no more than three causal reasons, each formatted according to the Causal Reason Format below.
 
 ### Causal Reason Format
 Each causal reason must follow this structure:
@@ -324,7 +325,7 @@ Use these exact JSON formats for references:
 - Ensure every claim is traceable to provided KB content
 - Maintain the exact formatting structure
 - Focus on accuracy and completeness within the KB scope
-- Ensure that every START has a corresponding END, and that each END comes after its corresponding START.
+- All tags of the form [XXX_START] and [XXX_END] must be present, correctly paired, and properly nested.
 - Additional system prompt: {user_prompt}
 
 Output:
